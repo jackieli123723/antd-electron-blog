@@ -1,0 +1,31 @@
+构建
+
+Find out more about deployment here:
+
+  https://bit.ly/CRA-deploy
+
+  • electron-builder  version=21.2.0 os=6.1.7601
+  • loaded configuration  file=package.json ("build" field)
+  • loaded parent configuration  preset=react-cra
+  • packaging       platform=win32 arch=x64 electron=6.0.9 appOutDir=dist\win-unpacked
+  • default Electron icon is used  reason=application icon is not set
+  • building        target=nsis file=dist\electron-demo Setup 0.1.0.exe archs=x64 oneClick=true perMachine=false
+  ⨯ [object Object]
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+
+
+
+一直失败的原因是因为有 中文文字的文件夹 改为 全引文就好了 
+
+
+### 404 问题 
+
+
+
+electron-builder react-router-dom   BrowserRouter 404  
+
+要用 hash 模式 解决看看呢 ？ 可以解决
+
+
+
