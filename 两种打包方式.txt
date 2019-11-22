@@ -1,0 +1,138 @@
+    "start-dev": "react-scripts start",
+    "build-dev": "react-scripts build",
+    "test-dev": "react-scripts test",
+    "eject-dev": "react-scripts eject",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+
+###GENERATE_SOURCEMAP=false 
+
+代码保护 
+
+      "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build:local": "react-scripts build",
+    "build:dev":"cross-env NODE_ENV=development PUBLIC_URL=http://static.dragonest.com/longyuan-artist-webfront/dev GENERATE_SOURCEMAP=false react-scripts build && cross-env NODE_ENV=development node .",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "preview":"serve build -p 5000"
+  },
+
+### 这样打包没有样式 有的没有 
+
+"build-dev": "react-scripts build",
+
+
+### 样式ok
+
+"build": "react-app-rewired build",
+
+
+###
+
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build:local": "react-scripts build",
+    "build:dev":"cross-env NODE_ENV=development PUBLIC_URL=http://static.dragonest.com/longyuan-artist-webfront/dev GENERATE_SOURCEMAP=false react-scripts build && cross-env NODE_ENV=development node .",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "preview":"serve build -p 5000"
+  },
+  
+
+
+
+###
+react-app-rewired是什么？
+作为一个后端开发，最大的感触就是，前端的网上资料有用的太少，因为各种框架、技术更新迭代太快，很多博客上的解决方案都已经过时了。你们看到的我的这篇文章，可能很快也会过时，但是我会把思路教给大家——话说，当遇到一个技术问题，实在解决不了怎么办？当然是找官方文档了。
+
+通过在react-app-rewired的官方文档，才知道这个工具的一个功能是在不eject的情况下，修改配置文件。上文说到的antd也是为了实现修改配置，才引入的这个工具。既然它的功能如此，那么用来修改打包地址应该也是可行的。
+
+使用react-app-rewired在不eject的情况下修改打包地址
+思路虽然有了，但是对于前端基础薄弱的后台开发来说，还是不知道怎么实操，在看了几篇issue之后，Changing the default paths，Change build output path之后，终于找到了方法。
+
+首先当然是要引入react-app-rewired了，这里我就不写方法了，大家参考官方文档，不会过时。
+
+引入之后，会有一个config-overrides.js文件，因为我引入了antd，里面已经有了些内容：
+
+?
+1
+2
+3
+4
+5
+6
+7
+8
+// 此文件是为了ant选择性引入
+const {injectBabelPlugin} = require('react-app-rewired');
+ 
+module.exports = function override(config, env) {
+  // antd选择性引入
+  config = injectBabelPlugin(['import', {libraryName: 'antd', libraryDirectory: 'es', style: 'css'}], config);
+  return config;
+};
+增加如下代码（去掉我用来标记代码的+号哈）：
+
+?
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+// 此文件是为了ant选择性引入
+const {injectBabelPlugin} = require('react-app-rewired');
+ 
+module.exports = function override(config, env) {
+  // antd选择性引入
+  config = injectBabelPlugin(['import', {libraryName: 'antd', libraryDirectory: 'es', style: 'css'}], config);
+ 
++  // 修改path目录
++  const path = require('path');
++  const paths = require('react-scripts/config/paths');
++  paths.appBuild = path.join(path.dirname(paths.appBuild), 'dist');
++  config.output.path = path.join(path.dirname(config.output.path), 'dist');
+ 
+  return config;
+};
+如此，再执行npm run build就可以了，问题解决。
+
+如果你已经进行了eject操作，很遗憾，只能通过版本库回退版本了。
+
+尾声：配置代码解析
+到了这里，估计有部分同学还不满意为什么以上代码能够解决问题，作为一个外行人，我按我的理解解释下。
+
+?
+1
+const path = require('path');
+这行代码是基于require.js，是一个js进行引入包的工具。通过这行代码，拿到path，才能够对路径做处理。
+
+?
+1
+const paths = require('react-scripts/config/paths');
+react-scripts里面有React项目用于打包的命令，以及配置文件，如果你进行了eject，会发现config和script目录里的内容与react-scripts里的同名目录惊人的相似。可以认为eject是把这里的配置暴露出来了。这里这行代码是为了获取项目的路径配置。
+
+?
+1
+paths.appBuild = path.join(path.dirname(paths.appBuild), 'dist');
+这行代码是修改配置里的appBuild目录，React项目在进行build的时候，都是根据这里配置的目录做的操作（例如检查打包后的代码大小，计算Gzip等），必须要修改，不然打包会失败。
+
+?
+1
+config.output.path = path.join(path.dirname(config.output.path), 'dist');
+这行代码就是实现我们目的的根源了，修改项目打包地址。
+
+好了，到这里本文结束。希望对大家的学习有所帮助，也希望大家多多支持脚本之家。

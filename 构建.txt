@@ -29,3 +29,89 @@ electron-builder react-router-dom   BrowserRouter 404
 
 
 
+### icon 指定 npm run win || npm run packager
+"build": {
+    "mac": {
+      "category": "demo"
+    },
+    "files": [
+      {
+        "from": "./",
+        "to": "./",
+        "filter": [
+          "**/*",
+          "!node_modules"
+        ]
+      }
+    ],
+    "directories": {
+      "buildResources": "public"
+    }
+  },
+
+
+#####不能icon 
+
+
+  "build": {
+    "appId": "com.demo"
+  },
+  "mac": {
+    "category": "public.app-category.productivity",
+    "target": "dmg"
+  },
+  "win": {
+    "certificateFile": "private/stackacademy.pfx",
+    "verifyUpdateCodeSignature": false,
+    "publisherName": "stackacademy",
+    "icon": "./public/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }
+    ]
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "deb"
+    ]
+  },
+  "nsis": {
+      "oneClick": false, 
+      "allowElevation": true, 
+      "allowToChangeInstallationDirectory": true, 
+      "installerIcon": "./public/icon.ico",
+      "uninstallerIcon": "./public/icon.ico",
+      "installerHeaderIcon": "./public/icon.ico"
+  },
+
+  ##
+  autoHideMenuBar Boolean类型（可选参数）- 除非按下Alt键否则自动隐藏菜单栏。默认为false。
+
+
+  ##
+
+    const { screen } = require('electron')
+    let { width, height } = screen.getPrimaryDisplay().bounds
+    
+    // 创建浏览器窗口。
+  win = new BrowserWindow({
+    width: 1920,//
+    height: 1080,//
+    autoHideMenuBar:true,/*隐藏左上角菜单*/
+    fullscreen:true,/*根据系统全屏*/
+    // window 使用 fullscreen,  mac 设置为 undefined, 不可为 false 不生效 64位 os.platform() === 'win32' || undefined, // win
+    //fullscreen: os.platform() === 'win32' ? true : undefined, // win
+    fullscreenable:true,/* 窗口是否可以进入全屏模式 开启的话没哟边框了默认是F11*/
+    // show: false,/*不显示程序弹框 可作为后台进程运行无界面*/
+    frame: flase,  //是否显示窗口边缘框架
+    //禁用跨域检查
+    webPreferences: {
+      webSecurity: false
+    }
+  })

@@ -1,8 +1,11 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, screen} = require('electron')
 const path = require('path')
 const url = require('url')
 
 const IS_DEV = process.env.NODE_ENV === 'development'
+
+
+let { width, height } = screen.getPrimaryDisplay().bounds
 
 // 保持一个对于 window 对象的全局引用，如果你不这样做，
 // 当 JavaScript 对象被垃圾回收， window 会被自动地关闭
@@ -13,8 +16,12 @@ function createWindow() {
 
   // 创建浏览器窗口。
   win = new BrowserWindow({
-    width: 1920,
-    height: 1080,
+    width: width,
+    height: height,
+   // autoHideMenuBar:true,/*隐藏左上角菜单*/
+   // fullscreen:true,/*根据系统全屏*/
+    fullscreenable:true,/* 窗口是否可以进入全屏模式 开启的话没哟边框了默认是F11*/
+    // show: false,/*不显示程序弹框 可作为后台进程运行无界面*/
     //禁用跨域检查
     webPreferences: {
       webSecurity: false
@@ -36,6 +43,9 @@ function createWindow() {
 
   // 打开开发者工具。
   IS_DEV && win.webContents.openDevTools()
+
+  
+
 
   // 当 window 被关闭，这个事件会被触发。
   win.on('closed', () => {
