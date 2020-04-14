@@ -10,7 +10,6 @@
 
 // import zhCN from 'antd/lib/locale-provider/zh_CN';
 
-
 // ReactDOM.render(
 
 //   <LocaleProvider  locale={zhCN}>
@@ -23,30 +22,27 @@
 // // Learn more about service workers: https://bit.ly/CRA-PWA
 // serviceWorker.unregister();
 
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import * as serviceWorker from "./serviceWorker";
+import Routes from "./router";
 
+import { ConfigProvider } from "antd";
 
+import zhCN from "antd/es/locale/zh_CN";
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import * as serviceWorker from './serviceWorker';
-import Routes from './router'
+import moment from "moment";
+import "moment/locale/zh-cn";
 
-import { ConfigProvider } from 'antd';
-
-import zhCN from 'antd/es/locale/zh_CN';
-
-import moment from 'moment';
-import 'moment/locale/zh-cn';
-
-moment.locale('zh-cn');
+moment.locale("zh-cn");
 
 ReactDOM.render(
-
-  <ConfigProvider   locale={zhCN}>
+  <ConfigProvider locale={zhCN}>
     <Routes />
   </ConfigProvider>,
-  document.getElementById('root'));
+  document.getElementById("root")
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
