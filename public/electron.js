@@ -1,11 +1,11 @@
-const { app, BrowserWindow, screen} = require('electron')
+const { app, BrowserWindow} = require('electron')
 const path = require('path')
 const url = require('url')
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 
 
-let { width, height } = screen.getPrimaryDisplay().bounds
+// let { width, height } = screen.getPrimaryDisplay().bounds
 
 // 保持一个对于 window 对象的全局引用，如果你不这样做，
 // 当 JavaScript 对象被垃圾回收， window 会被自动地关闭
@@ -16,10 +16,16 @@ function createWindow() {
 
   // 创建浏览器窗口。
   win = new BrowserWindow({
-    width: width,
-    height: height,
-   // autoHideMenuBar:true,/*隐藏左上角菜单*/
-   // fullscreen:true,/*根据系统全屏*/
+    // transparent: true, //, 还可以使无框窗口透明:
+    // useContentSize: true,//width 和 height 使用web网页size, 这意味着实际窗口的size应该包括窗口框架的size，稍微会大一点，默认为 false.
+    width: 1200 ,
+    height: 1000,
+    minWidth:1200,
+    minHeight:1000,
+    frame: false, //是否显示自带边框
+    movable: false, //可否移动 容易导致里面元素不可点击
+    autoHideMenuBar:true,/*隐藏左上角菜单*/
+    fullscreen:true,/*根据系统全屏*/
     fullscreenable:true,/* 窗口是否可以进入全屏模式 开启的话没哟边框了默认是F11*/
     // show: false,/*不显示程序弹框 可作为后台进程运行无界面*/
     //禁用跨域检查

@@ -23,7 +23,14 @@ export default class Login extends PureComponent {
   handlePasswordInput = (e) => {
     this.setState({password: e.target.value});
   };
-  
+
+  //判断点击的键盘的keyCode是否为13，是就调用上面的跳转
+  handleKeyDownJump = (e) => {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      this.login();
+    }
+  };
+
   login = () => {
 
     if(this.state.username == ''){
@@ -72,11 +79,11 @@ render() {
           <h1>西门互联后台管理系统</h1>
           
             <input className="login-input" type="text" value={this.state.username}
-                   onChange={this.handleUsernameInput} placeholder="用户名" required="required"/>
+                   onChange={this.handleUsernameInput} placeholder="用户名" required="required"  onKeyDown={this.handleKeyDownJump} />
             <input className="login-input" type="password" value={this.state.password}
-                   onChange={this.handlePasswordInput} placeholder="密码" required="required"/>
+                   onChange={this.handlePasswordInput} placeholder="密码" required="required"  onKeyDown={this.handleKeyDownJump} />
             <button className="btn btn-primary btn-block btn-large"
-                    type="submit" disabled={this.state.requesting} onClick={this.login}>
+                    type="submit" disabled={this.state.requesting} onClick={this.login} >
               登录
             </button>
       

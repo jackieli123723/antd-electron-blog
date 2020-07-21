@@ -25,6 +25,7 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+
     <div id="root"></div>
     <!--
       This HTML file is a template.
@@ -36,5 +37,18 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+    <script>
+      if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+      </script>
+      <script>
+      const { ipcRenderer } = require('electron')
+      const updateOnlineStatus = () => {
+        ipcRenderer.send('online-status-changed', navigator.onLine ? 'online' : 'offline')
+      }
+      window.addEventListener('online',  updateOnlineStatus)
+      window.addEventListener('offline',  updateOnlineStatus)
+      updateOnlineStatus()
+      </script>
   </body>
 </html>

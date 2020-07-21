@@ -2,8 +2,8 @@ import axios from 'axios';
 import qs from 'qs';
 // console.log('NODE_ENV: ',  process.env.NODE_ENV)
 // https 生产环境要用相对路径
-//const BASE_API = process.env.NODE_ENV === 'development' ? "http://118.24.30.92:8085/api" : "http://118.24.30.92:8085/api";
-const BASE_API = process.env.NODE_ENV === 'development' ? "http://localhost:3200/api" : "http://localhost:3200/api";
+const BASE_API = process.env.NODE_ENV === 'development' ? "http://118.24.30.92:8085/api" : "http://118.24.30.92:8085/api";
+// const BASE_API = process.env.NODE_ENV === 'development' ? "http://localhost:3200/api" : "http://localhost:3200/api";
 
 //express 8080  
 //koa 3200 

@@ -23,6 +23,9 @@ const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
 
+const uploadApiAction = process.env.NODE_ENV === 'development' ? "http://118.24.30.92:8085/api/article/upload" :  "http://118.24.30.92:8085/api/article/upload";
+// const uploadApiAction = process.env.NODE_ENV === 'development' ? "http://localhost:3200/api/article/upload" :  "http://localhost:3200/api/article/upload";
+
 function getBase64(img, callback) {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result));
@@ -327,7 +330,7 @@ sbumitAdd = () => {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action="http://localhost:3200/api/article/upload"
+              action={uploadApiAction}
               beforeUpload={beforeUpload}
               onChange={this.handleChangeSmall}
             >
@@ -344,7 +347,7 @@ sbumitAdd = () => {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action="http://localhost:3200/api/article/upload"
+              action={uploadApiAction}
               beforeUpload={beforeUpload}
               onChange={this.handleChangeBig}
             >

@@ -115,3 +115,6 @@ electron-builder react-router-dom   BrowserRouter 404
       webSecurity: false
     }
   })
+
+
+##运行 yarn start && npm run start-electron 两个终端
