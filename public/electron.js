@@ -1,8 +1,9 @@
-const { app, BrowserWindow} = require('electron')
+const { app, BrowserWindow, Menu,Tray,ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 
 const IS_DEV = process.env.NODE_ENV === 'development'
+
 
 
 // let { width, height } = screen.getPrimaryDisplay().bounds
@@ -26,11 +27,12 @@ function createWindow() {
     movable: false, //可否移动 容易导致里面元素不可点击
     autoHideMenuBar:true,/*隐藏左上角菜单*/
     fullscreen:true,/*根据系统全屏*/
-    fullscreenable:true,/* 窗口是否可以进入全屏模式 开启的话没哟边框了默认是F11*/
+    fullscreenable:false,/* 窗口是否可以进入全屏模式 开启的话没哟边框了默认是F11*/
     // show: false,/*不显示程序弹框 可作为后台进程运行无界面*/
     //禁用跨域检查
     webPreferences: {
-      webSecurity: false
+      webSecurity: false,
+      nodeIntegration: true  //process not undefined 解决ipcMain 和 ipcRenderer通信 https://github.com/electron/electron/issues/18139 login 中不需要引入了
     }
   })
 
@@ -60,7 +62,108 @@ function createWindow() {
     // 与此同时，你应该删除相应的元素。
     win = null
   })
+
+   //系统托盘图标
+  if(process.platform === 'win32'){
+      //设置托盘图标和菜单
+      var trayMenuTemplate = [
+        {
+          label: '打开',
+          click: () => {
+            win.show();
+          }
+        },
+        {
+          label: '退出',
+          click: () => {
+            app.quit();
+            app.quit();//因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
+          }
+        }
+      ];
+      //系统托盘图标
+      appTray = process.env.NODE_ENV === 'development' ? new Tray(`${__dirname}/icon.ico`):new Tray(`${__dirname}/icon.ico`);
+      //图标的上下文菜单
+      const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+      //设置此托盘图标的悬停提示内容
+      appTray.setToolTip('西门互联');
+      //设置此图标的上下文菜单
+      appTray.setContextMenu(contextMenu);
+      //单击右下角小图标显示应用左键
+      appTray.on('click',function(){
+        win.show();
+      })
+      //右键
+      appTray.on('right-click', () => {
+        appTray.popUpContextMenu(trayMenuTemplate);
+      });
+    }
+
+    
+    //右上角 放大 缩小 关闭
+
+    // ipcMain.on('min', e=> win.minimize());
+    // ipcMain.on('max', e=> win.maximize());
+    // ipcMain.on('close', e=> win.close());
+
+
+    ipcMain.on('min',() => {
+      if (win) {
+        if (win.isMinimized()) { win.restore(); }
+        else { win.minimize(); }
+      }
+    });
+    
+    ipcMain.on('max',() => {
+      if (win) {
+        if (win.isMaximized()) { win.unmaximize(); }
+        else { win.maximize(); }
+      }
+    });
+
+    ipcMain.on('close',() => {
+      app.quit()  //kill 
+      // app.close() not a fuction 
+    });
+     
+    //第一个是event 后面的参数需要send 发送的对应 不然只能拿到第一个  
+    // 流程 ==== 子进程  ==>>> 主进程  === 回复 --- 子进程 ---子进程 监听过来的数据
+    ipcMain.once('data',(event,arg1,arg2,arg3) => {
+      console.log('recieve data',arg1,arg2,arg3)
+      // process.setMaxListeners(0); //once 替换 on 解决事件叠加问题 偶尔可以点击 偶尔不能点击？
+      event.reply('data-reply',arg1+1,arg2+1,arg3+1) //
+    });
+
+    //把天气预报的cli 通信到这里 显示 到网页显示  
+    //异步问题 数据通信
+    ipcMain.on('weather',(event,arg) => {
+      console.log('recieve data',arg)
+ 
+      let  stdoutWeatherData = ''
+      const exec = require('child_process').exec;
+
+      var child = exec('weather -c 成都 -j -d 15', function(err, stdout, stderr) {
+        if (err) {
+          throw err;
+          return;
+        }else{
+          console.log(stdout);
+          stdoutWeatherData = stdout
+          event.reply('weather-reply',stdoutWeatherData) //
+        }
+      
+      });
+
+    
+    });
+    
+
+
+
+
 }
+
+
 
 // Electron 会在初始化后并准备
 // 创建浏览器窗口时，调用这个函数。
@@ -87,3 +190,8 @@ app.on('activate', () => {
 function installExtensions() {
   BrowserWindow.addDevToolsExtension(path.join(__dirname, '../', 'chrome-extensions', 'react-dev-tools'));
 }
+
+
+ipcMain.on('online-status-changed', (event, status) => {
+  console.log('web status:=====',status)
+})

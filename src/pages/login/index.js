@@ -1,7 +1,11 @@
 
 import React, { PureComponent } from 'react'
 import { message } from 'antd'
+// import { ipcRenderer } from 'electron'
 
+// const { ipcRenderer } = window.require('electron');
+
+// const { ipcRenderer } = require('electron')
 
 import { PostUserSignup,PostLogin } from '../../api/index.js'
 
@@ -67,12 +71,60 @@ export default class Login extends PureComponent {
 
 }
 
+   min = () => {
+    ipcRenderer.send('min');
+   }
+
+   max = () => {
+    ipcRenderer.send('max');
+  }
+
+  close = () => {
+    ipcRenderer.send('close');
+  }
+
+  sendData = () => {
+    ipcRenderer.send('data',333,444,555)
+    ipcRenderer.once('data-reply', (event, arg1,arg2,arg3) => {
+      // this.setState({password: arg1});
+      console.log(arg1,arg2,arg3) // prints "334 445 556" //第一次点击正常 但是后面多次点击 事件叠加 多个调用 用once 替换on  
+      //(node:12056) MaxListenersExceededWarning: Possible EventEmitter memory leak dete
+      // cted. 11 data-reply listeners added to [EventEmitter]. Use emitter.setMaxListene
+      // rs() to increase limit
+      // (node:12056) MaxListenersExceededWarning: Possible EventEmitter memory leak dete
+      // cted. 11 data-reply listeners added to [EventEmitter]. Use emitter.setMaxListene
+      // rs() to increase limit
+      // recieve data 3333 444 555
+      // recieve data 3333 444 555
+      // recieve data 3333 444 555
+    })
+
+  }
+  
+  //vs sendData
+  sendWeatherData = () => {
+    ipcRenderer.send('weather','CD')
+    ipcRenderer.on('weather-reply', (event, arg) => {
+      console.log('WEATHER',JSON.stringify(arg,null,2))   
+    })
+
+  }
+
+
+
 
 
 render() {
     // 整个组件被一个id="loginDIV"的div包围, 样式都设置到这个div中
     return (
       <div id="loginDIV">
+        <div className="top-fix">
+          <button onClick={this.min}>min</button>
+          <button onClick={this.max}>max</button>
+          <button onClick={this.close}>close</button>
+          <button onClick={this.sendData}>send data</button>
+          <button onClick={this.sendWeatherData}>cd weather</button>
+        </div>
 
     
         <div className="login">
