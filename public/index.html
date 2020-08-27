@@ -42,7 +42,8 @@
       if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
       </script>
       <script>
-      const { ipcRenderer } = require('electron')
+ 
+      const { ipcRenderer,remote } = require('electron')
       const updateOnlineStatus = () => {
         ipcRenderer.send('online-status-changed', navigator.onLine ? 'online' : 'offline')
       }

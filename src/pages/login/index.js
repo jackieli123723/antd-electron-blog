@@ -7,6 +7,19 @@ import { message } from 'antd'
 
 // const { ipcRenderer } = require('electron')
 
+//全局监听 新窗口事件 
+
+
+ipcRenderer.on('new-window-create-done',() => {
+  console.log('new window 创建OK了')
+})
+
+ipcRenderer.on('new-window-destory-done',() => {
+  console.log('new window 卸载成功')
+})
+
+
+
 import { PostUserSignup,PostLogin } from '../../api/index.js'
 
 import './index.less';
@@ -84,7 +97,10 @@ export default class Login extends PureComponent {
   }
 
   sendData = () => {
+    //这里是异步发送 ---（建议采用异步用同步坑多）
+    //同步方法 sendSync ---- 在ipcMain on 事件中配套使用   event.returnValue = 'pong'
     ipcRenderer.send('data',333,444,555)
+    //这里用once 防止事件叠加 回传主进程数据
     ipcRenderer.once('data-reply', (event, arg1,arg2,arg3) => {
       // this.setState({password: arg1});
       console.log(arg1,arg2,arg3) // prints "334 445 556" //第一次点击正常 但是后面多次点击 事件叠加 多个调用 用once 替换on  
@@ -104,11 +120,35 @@ export default class Login extends PureComponent {
   //vs sendData
   sendWeatherData = () => {
     ipcRenderer.send('weather','CD')
-    ipcRenderer.on('weather-reply', (event, arg) => {
+    ipcRenderer.once('weather-reply', (event, arg) => {
       console.log('WEATHER',JSON.stringify(arg,null,2))   
     })
 
   }
+
+  //新开窗口 remote 
+  createRemoteWindow = () => {
+
+  }
+
+  closeRemoteWindow = () => {
+
+  }
+
+
+    //新开窗口 ipcRenderer 
+    createIpcRendererWindow = () => {
+      ipcRenderer.send('new-window',{
+        title:'西门互联new窗口',
+        // frame: false 
+      })
+    }
+  
+    closeIpcRendererWindow = () => {
+      ipcRenderer.send('close-new-window')
+    }
+
+
 
 
 
@@ -123,6 +163,10 @@ render() {
           <button onClick={this.max}>max</button>
           <button onClick={this.close}>close</button>
           <button onClick={this.sendData}>send data</button>
+          <button onClick={this.createRemoteWindow}>新开窗口remote</button>
+          <button onClick={this.closeRemoteWindow}>关闭窗口remote</button>
+          <button onClick={this.createIpcRendererWindow}>新开窗口ipcRenderer </button>
+          <button onClick={this.closeIpcRendererWindow}>关闭窗口ipcRenderer </button>
           <button onClick={this.sendWeatherData}>cd weather</button>
         </div>
 

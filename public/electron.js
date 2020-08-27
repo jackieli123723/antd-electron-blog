@@ -4,7 +4,7 @@ const url = require('url')
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 
-
+// process.setMaxListeners(0); not work
 
 // let { width, height } = screen.getPrimaryDisplay().bounds
 
@@ -23,7 +23,7 @@ function createWindow() {
     height: 1000,
     minWidth:1200,
     minHeight:1000,
-    frame: false, //是否显示自带边框
+    frame: false, //是否显示自带边框 默认值为 true
     movable: false, //可否移动 容易导致里面元素不可点击
     autoHideMenuBar:true,/*隐藏左上角菜单*/
     fullscreen:true,/*根据系统全屏*/
@@ -128,14 +128,80 @@ function createWindow() {
      
     //第一个是event 后面的参数需要send 发送的对应 不然只能拿到第一个  
     // 流程 ==== 子进程  ==>>> 主进程  === 回复 --- 子进程 ---子进程 监听过来的数据
-    ipcMain.once('data',(event,arg1,arg2,arg3) => {
+    //事件叠加问题待解  ?event.sender.send('data-reply',arg1+1,arg2+1,arg3+1)
+    ipcMain.on('data',(event,arg1,arg2,arg3) => {
       console.log('recieve data',arg1,arg2,arg3)
-      // process.setMaxListeners(0); //once 替换 on 解决事件叠加问题 偶尔可以点击 偶尔不能点击？
-      event.reply('data-reply',arg1+1,arg2+1,arg3+1) //
+      //加不加都没有影响下面这个
+      // process.setMaxListeners(0); // once 替换 on 解决事件叠加问题 偶尔可以点击 偶尔不能点击？ 注释就ok 了 用once？ 不行的
+      event.reply('data-reply',arg1+1,arg2+1,arg3+1) // way1 事件叠加---ok 解决 
+      // event.sender.send('data-reply',arg1+1,arg2+1,arg3+1) //ok way2 解决事件叠加 web -> ipcMain
+
+      //DEL EVENT eroror not a function
+      // ipcMain.removeHandler('data',() => {})
+      // ipcMain.removeHandler('data-reply',() =>{})
+
+      //sender.send  回应异步消息, 
+//       发送消息，事件名为 channel.
+// 回应同步消息, 你可以设置 event.returnValue.
+// 回应异步消息, 你可以使用 event.sender.send(...).
+// 一个例子，在主进程和渲染进程之间发送和处理消息:
+
+// // In main process.
+// const ipcMain = require('electron').ipcMain;
+// ipcMain.on('asynchronous-message', function(event, arg) {
+//   console.log(arg);  // prints "ping"
+//   event.sender.send('asynchronous-reply', 'pong');
+// });
+
+// ipcMain.on('synchronous-message', function(event, arg) {
+//   console.log(arg);  // prints "ping"
+//   event.returnValue = 'pong';
+// });
+// // In renderer process (web page).
+// const ipcRenderer = require('electron').ipcRenderer;
+// console.log(ipcRenderer.sendSync('synchronous-message', 'ping')); // prints "pong"
+
+// ipcRenderer.on('asynchronous-reply', function(event, arg) {
+//   console.log(arg); // prints "pong"
+// });
+// ipcRenderer.send('asynchronous-message', 'ping');
+//       你可以使用 event.sender.send(...) . 一个例子，在主进程和渲染进程之间发送和处理消息:
+      //event.sender.send(xxxx) || event.sender.send('data-reply',arg1+1,arg2+1,arg3+1)
+
+
+      // ###vs 
+
+
+      // 下面是在渲染和主进程之间发送和处理消息的一个例子：
+
+// // 在主进程中.
+// const { ipcMain } = require('electron')
+// ipcMain.on('asynchronous-message', (event, arg) => {
+//   console.log(arg) // prints "ping"
+//   event.reply('asynchronous-reply', 'pong')
+// })
+
+// ipcMain.on('synchronous-message', (event, arg) => {
+//   console.log(arg) // prints "ping"
+//   event.returnValue = 'pong'
+// })
+// 复制
+// //在渲染器进程 (网页) 中。
+// const { ipcRenderer } = require('electron')
+// console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+
+// ipcRenderer.on('asynchronous-reply', (event, arg) => {
+//   console.log(arg) // prints "pong"
+// })
+// ipcRenderer.send('asynchronous-message', 'ping')
+
+
+
     });
 
     //把天气预报的cli 通信到这里 显示 到网页显示  
     //异步问题 数据通信
+    //点击快了 应该用promise封装下  例如当数据完成后才能进行解锁下一个事件 不然会导致数据延迟覆盖
     ipcMain.on('weather',(event,arg) => {
       console.log('recieve data',arg)
  
@@ -156,6 +222,46 @@ function createWindow() {
 
     
     });
+
+
+
+    //窗口新建监听 
+
+    let tempWin  = null ;
+    //一个进程 应该在任务管理器有一个进程才对？
+    ipcMain.on('new-window',(event,config) => {
+      tempWin = new BrowserWindow(config);
+      // tempWin.loadURL(main) 加载网页
+      event.sender.send('new-window-create-done')
+    
+    })
+
+       //关闭 有问题 放在外面？
+       ipcMain.on('close-new-window',(event) => {
+        if(tempWin){
+          tempWin = null 
+          tempWin.quit() 
+        }
+        event.reply('new-window-destory-done')
+      })
+    
+ 
+    
+     
+
+
+    // //新开窗口 ipcRenderer 
+    // createIpcRendererWindow = () => {
+    //   ipcRenderer.send('new-window',{
+    //     title:'西门互联new窗口'
+    //   })
+    // }
+  
+    // closeIpcRendererWindow = () => {
+    //   ipcRenderer.send('close-new-window')
+    // }
+
+
     
 
 
