@@ -31,7 +31,6 @@ function createWindow() {
     // show: false,/*不显示程序弹框 可作为后台进程运行无界面*/
     //禁用跨域检查
     webPreferences: {
-      enableRemoteModule: true, // mac fs not a function bug
       webSecurity: false,
       nodeIntegration: true  //process not undefined 解决ipcMain 和 ipcRenderer通信 https://github.com/electron/electron/issues/18139 login 中不需要引入了
     }

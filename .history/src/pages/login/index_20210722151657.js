@@ -1,8 +1,7 @@
 
 import React, { PureComponent } from 'react'
 import { message } from 'antd'
-// import { ipcRenderer } from 'electron'
-
+import { ipcRenderer } from 'electron'
 import { PostUserSignup,PostLogin } from '../../api/index.js'
 
 import './index.less';
@@ -13,7 +12,6 @@ import './index.less';
 
 //全局监听 新窗口事件 
 
-const { ipcRenderer } = window.require('electron'); //mac window 兼容 electron env browesr 
 
 ipcRenderer.on('new-window-create-done',() => {
   console.log('new window 创建OK了')

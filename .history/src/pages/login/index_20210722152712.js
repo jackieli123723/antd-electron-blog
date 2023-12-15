@@ -13,7 +13,7 @@ import './index.less';
 
 //全局监听 新窗口事件 
 
-const { ipcRenderer } = window.require('electron'); //mac window 兼容 electron env browesr 
+const { ipcRenderer } = window.require('electron'); //mac window 兼容
 
 ipcRenderer.on('new-window-create-done',() => {
   console.log('new window 创建OK了')
